@@ -3,6 +3,7 @@ const assets = require("../models/assets");
 const building = require("../models/building");
 const dbconnections = require("../models/databaseconn");
 const bodyParser = require("body-parser");
+const room = require("../models/room");
 
 dbconnections.conn.once("open", () => {
   console.log("connected");
@@ -62,7 +63,28 @@ router.get("/asset", async (req, res) => {
   const re = await getData("asset");
   res.status(200).json({ data: re });
 });
+router.post("/room", bodyParser.json(), async (req, res) => {
+  const id = await getID("room", "roomId");
+  let room = new room({
+    roomId: id,
+    roomName: req.body.roomName,
+    buildingDetails: req.body.buildingDetails,
+  });
+     room
+    .save()
+    .then(() => {
+      console.log("item saved");
+      res.status(200).json({ msg: "success" });
+    })
+    .catch((err) => {
+      res.status(500).json({ msg: "something went wrong", err: err });
+    });
+});
 
+router.get("/room", async (req, res) => {
+  const re = await getData("room");
+  res.status(200).json({ data: re });
+});
 async function getID(collection, id) {
   let uuid;
   switch (collection) {
@@ -84,12 +106,24 @@ async function getID(collection, id) {
         .sort({ assetId: -1 })
         .then((data) => {
           if (data.length > 0) {
-            resu = data;
+            uuid = data[0].assetId + 1;
           } else {
-            resu = [];
+            uuid = 1;
           }
         });
       break;
+      case "room":
+        await room
+          .find()
+          .sort({ roomId: -1 })
+          .then((data) => {
+            if (data.length > 0) {
+              uuid = data[0].roomId + 1;
+            } else {
+              uuid = 1;
+            }
+          });
+        break;  
 
     default:
       break;
@@ -114,7 +148,7 @@ async function getData(collection) {
     case "asset":
       await assets
         .find()
-        .sort({ assetIdId: -1 })
+        .sort({ assetId: -1 })
         .then((data) => {
           if (data.length > 0) {
             resu = data;
@@ -123,7 +157,18 @@ async function getData(collection) {
           }
         });
       break;
-
+      case "room":
+        await room
+          .find()
+          .sort({ roomId: -1 })
+          .then((data) => {
+            if (data.length > 0) {
+              resu = data;
+            } else {
+              resu = [];
+            }
+          });
+        break;
     default:
       break;
   }
