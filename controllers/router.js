@@ -48,7 +48,6 @@ router.post("/asset", bodyParser.json(), async (req, res) => {
     assetModelId: req.body.assetModelId,
     buildingId: req.body.buildingId,
     allocated: req.body.allocated,
-    isActive: req.body.isActive,
   });
   asset
     .save()
@@ -92,7 +91,7 @@ router.post("/user", bodyParser.json(), async (req, res) => {
   const id = await getID("user", "userId");
   let user = new users({
     userId: id,
-    userName: req.body.roomName,
+    userName: req.body.userName,
     isActive: req.body.isActive,
   });
 
@@ -113,13 +112,13 @@ router.get("/user", async (req, res) => {
 });
 router.post("/country", bodyParser.json(), async (req, res) => {
   const id = await getID("country", "countryId");
-  let user = new users({
+  let country = new countries({
     countryId: id,
     countryName: req.body.countryName,
     isActive: req.body.isActive,
   });
 
-  user
+  country
     .save()
     .then(() => {
       console.log("item saved");
@@ -134,6 +133,22 @@ router.get("/country", async (req, res) => {
   const re = await getData("country");
   res.status(200).json({ data: re });
 });
+router.get("/allCount", async (req, res) => {
+  const country = await getID("country","countryId");
+  const user = await getID("user","userId");
+  const asset = await getID("asset","assetId");
+  const building = await getID("building","buildingId");
+  const room = await getID("room","roomId");
+  const data={
+    country:country-1,
+    user:user-1,
+    asset:asset-1,
+    building:building-1,
+    room:room-1,
+  }
+  res.status(200).json(data);
+});
+
 async function getID(collection, id) {
   let uuid;
   switch (collection) {
@@ -186,7 +201,7 @@ async function getID(collection, id) {
         });
       break;
     case "country":
-      await users
+      await countries
         .find()
         .sort({ countryId: -1 })
         .then((data) => {
@@ -196,7 +211,7 @@ async function getID(collection, id) {
             uuid = 1;
           }
         });
-      break;
+      break;  
     default:
       break;
   }

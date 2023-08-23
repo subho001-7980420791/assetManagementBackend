@@ -11,6 +11,5 @@ const Schema = new mongoose.Schema({
     "assetModelId": String,
     "buildingId": String,
     "allocated": Boolean,
-    "isActive": Boolean,
 });
 module.exports = conn.model("assets", Schema);
