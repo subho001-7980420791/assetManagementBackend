@@ -3,7 +3,7 @@ const assets = require("../models/assets");
 const building = require("../models/building");
 const dbconnections = require("../models/databaseconn");
 const bodyParser = require("body-parser");
-const room = require("../models/room");
+const rooms = require("../models/rooms");
 
 dbconnections.conn.once("open", () => {
   console.log("connected");
@@ -65,11 +65,12 @@ router.get("/asset", async (req, res) => {
 });
 router.post("/room", bodyParser.json(), async (req, res) => {
   const id = await getID("room", "roomId");
-  let room = new room({
+  let room = new rooms({
     roomId: id,
     roomName: req.body.roomName,
     buildingDetails: req.body.buildingDetails,
   });
+
      room
     .save()
     .then(() => {
@@ -113,7 +114,7 @@ async function getID(collection, id) {
         });
       break;
       case "room":
-        await room
+        await rooms
           .find()
           .sort({ roomId: -1 })
           .then((data) => {

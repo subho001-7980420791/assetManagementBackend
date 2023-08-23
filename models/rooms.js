@@ -5,4 +5,4 @@ const Schema = new mongoose.Schema({
   roomName: String,
   buildingDetails: Object,
 });
-module.exports = conn.model("room", Schema);
+module.exports = conn.model("rooms", Schema);
