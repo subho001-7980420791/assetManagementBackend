@@ -1,4 +1,5 @@
 const router = require("express").Router();
+const assets = require("../models/assets");
 const building = require("../models/building");
 const dbconnections = require("../models/databaseconn");
 const bodyParser = require("body-parser");
@@ -28,8 +29,38 @@ router.post("/building", bodyParser.json(), async (req, res) => {
 });
 
 router.get("/building", async (req, res) => {
-  const re = await getData("building",);
-  res.status(200).json({data:re})
+  const re = await getData("building");
+  res.status(200).json({ data: re });
+});
+router.post("/asset", bodyParser.json(), async (req, res) => {
+  const id = await getID("asset", "assetId");
+  let asset = new assets({
+    assetId: id,
+    stickerId: req.body.stickerId,
+    isActive: req.body.isActive,
+    allocatedRoomId: req.body.allocatedRoomId,
+    currentRoomId: req.body.currentRoomId,
+    allocatedUserId: req.body.allocatedUserId,
+    assetModelName: req.body.assetModelName,
+    assetModelId: req.body.assetModelId,
+    buildingId: req.body.buildingId,
+    allocated: req.body.allocated,
+    isActive: req.body.isActive,
+  });
+     asset
+    .save()
+    .then(() => {
+      console.log("item saved");
+      res.status(200).json({ msg: "success" });
+    })
+    .catch((err) => {
+      res.status(500).json({ msg: "something went wrong", err: err });
+    });
+});
+
+router.get("/asset", async (req, res) => {
+  const re = await getData("asset");
+  res.status(200).json({ data: re });
 });
 
 async function getID(collection, id) {
@@ -40,11 +71,22 @@ async function getID(collection, id) {
         .find({})
         .sort({ buildingId: -1 })
         .then((data) => {
-          
           if (data.length > 0) {
             uuid = data[0].buildingId + 1;
           } else {
             uuid = 1;
+          }
+        });
+      break;
+    case "asset":
+      await assets
+        .find()
+        .sort({ assetId: -1 })
+        .then((data) => {
+          if (data.length > 0) {
+            resu = data;
+          } else {
+            resu = [];
           }
         });
       break;
@@ -67,7 +109,19 @@ async function getData(collection) {
           } else {
             resu = [];
           }
-        })
+        });
+      break;
+    case "asset":
+      await assets
+        .find()
+        .sort({ assetIdId: -1 })
+        .then((data) => {
+          if (data.length > 0) {
+            resu = data;
+          } else {
+            resu = [];
+          }
+        });
       break;
 
     default:
